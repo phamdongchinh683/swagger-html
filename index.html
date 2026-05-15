@@ -19,7 +19,6 @@
       --text: #1f2937;
       --muted: #64748b;
       --primary: #059669;
-      --primary-soft: #dff8ea;
       --blue: #2563eb;
       --orange: #ea580c;
       --red: #dc2626;
@@ -178,10 +177,13 @@
       padding-right: 4px;
     }
 
+    .sidebar-group {
+      border-bottom: 1px solid #edf4ef;
+      padding-bottom: 8px;
+      margin-bottom: 8px;
+    }
+
     .sidebar-project-title {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
       width: 100%;
       border: 0;
       background: transparent;
@@ -192,17 +194,14 @@
       text-transform: uppercase;
       letter-spacing: .08em;
       cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
     .sidebar-project-title span:last-child {
       color: #94a3b8;
       font-size: 12px;
-    }
-
-    .sidebar-group {
-      border-bottom: 1px solid #edf4ef;
-      padding-bottom: 8px;
-      margin-bottom: 8px;
     }
 
     .sidebar-endpoints {
@@ -477,20 +476,6 @@
       display: none !important;
     }
 
-    ::-webkit-scrollbar {
-      width: 9px;
-      height: 9px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: rgba(16,185,129,.24);
-      border-radius: 999px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(8px); }
       to { opacity: 1; transform: translateY(0); }
@@ -581,6 +566,9 @@
     const API_SERVER = 'https://my-server.serveminecraft.net'
     const OPENAPI_URL = `${API_SERVER}/swagger/json`
 
+    let cachedSpec = null
+    let swaggerInitialized = false
+
     const state = {
       tag: 'all',
       method: 'all',
@@ -588,6 +576,29 @@
       endpoints: [],
       collapsedTags: new Set(),
     }
+
+    const loadOpenApiOnce = async () => {
+      if (cachedSpec) return cachedSpec
+
+      const response = await fetch(OPENAPI_URL)
+
+      if (!response.ok) {
+        throw new Error(`Cannot load OpenAPI JSON: ${response.status}`)
+      }
+
+      cachedSpec = await response.json()
+      return cachedSpec
+    }
+
+    const patchOpenApiSpec = spec => ({
+      ...spec,
+      servers: [
+        {
+          url: API_SERVER,
+          description: 'BusGo Production API',
+        },
+      ],
+    })
 
     const methodClass = method => {
       const value = method.toLowerCase()
@@ -605,6 +616,25 @@
         normalize(`${item.method} ${item.path} ${item.summary} ${item.tag}`).includes(q)
 
       return byTag && byMethod && bySearch
+    }
+
+    const buildEndpointList = spec => {
+      if (state.endpoints.length) return
+
+      Object.entries(spec.paths || {}).forEach(([path, methods]) => {
+        Object.entries(methods).forEach(([method, operation]) => {
+          const methodUpper = method.toUpperCase()
+
+          if (!['GET', 'POST', 'PUT', 'DELETE', 'PATCH'].includes(methodUpper)) return
+
+          state.endpoints.push({
+            method: methodUpper,
+            path,
+            tag: operation.tags?.[0] || 'default',
+            summary: operation.summary || operation.description || '',
+          })
+        })
+      })
     }
 
     const renderChips = () => {
@@ -698,6 +728,7 @@
       document.querySelectorAll('.sidebar-item').forEach(button => {
         button.onclick = event => {
           event.preventDefault()
+          event.stopPropagation()
 
           const path = button.dataset.path
 
@@ -766,46 +797,8 @@
       })
     }
 
-    const patchOpenApiSpec = spec => {
-      return {
-        ...spec,
-        servers: [
-          {
-            url: API_SERVER,
-            description: 'BusGo Production API',
-          },
-        ],
-      }
-    }
-
-    const init = async () => {
-      const response = await fetch(OPENAPI_URL)
-
-      if (!response.ok) {
-        throw new Error(`Cannot load OpenAPI JSON: ${response.status}`)
-      }
-
-      const rawSpec = await response.json()
-      const spec = patchOpenApiSpec(rawSpec)
-
-      Object.entries(spec.paths || {}).forEach(([path, methods]) => {
-        Object.entries(methods).forEach(([method, operation]) => {
-          const methodUpper = method.toUpperCase()
-
-          if (!['GET', 'POST', 'PUT', 'DELETE', 'PATCH'].includes(methodUpper)) {
-            return
-          }
-
-          state.endpoints.push({
-            method: methodUpper,
-            path,
-            tag: operation.tags?.[0] || 'default',
-            summary: operation.summary || operation.description || '',
-          })
-        })
-      })
-
-      renderAll()
+    const initSwaggerOnce = spec => {
+      if (swaggerInitialized) return
 
       SwaggerUIBundle({
         spec,
@@ -817,6 +810,17 @@
         persistAuthorization: true,
         tryItOutEnabled: true,
       })
+
+      swaggerInitialized = true
+    }
+
+    const init = async () => {
+      const rawSpec = await loadOpenApiOnce()
+      const spec = patchOpenApiSpec(rawSpec)
+
+      buildEndpointList(spec)
+      renderAll()
+      initSwaggerOnce(spec)
 
       document.getElementById('endpointSearch').addEventListener('input', event => {
         state.search = event.target.value
