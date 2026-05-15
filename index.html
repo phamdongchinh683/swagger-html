@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BusGo API Docs</title>
+
+  <link rel="icon" type="image/png" href="https://res.cloudinary.com/dinvm5h7g/image/upload/v1776836282/logo/ChatGPT_Image_Apr_22_2026_12_37_40_PM_melvlj.png" />
+  <link rel="apple-touch-icon" href="https://res.cloudinary.com/dinvm5h7g/image/upload/v1776836282/logo/ChatGPT_Image_Apr_22_2026_12_37_40_PM_melvlj.png" />
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
+
+  <style>
+    :root {
+      --bg: #f3f8f5;
+      --panel: rgba(255,255,255,.9);
+      --panel-2: #ffffff;
+      --panel-3: #f7fbf8;
+      --line: #d8e9df;
+      --text: #1f2937;
+      --muted: #64748b;
+      --primary: #059669;
+      --primary-soft: #dff8ea;
+      --blue: #2563eb;
+      --orange: #ea580c;
+      --red: #dc2626;
+      --purple: #7c3aed;
+      --shadow: 0 14px 40px rgba(15,23,42,.06);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(16,185,129,.12), transparent 30%),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .docs-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 72px;
+      padding: 0 28px;
+      display: flex;
+      align-items: center;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      object-fit: cover;
+      border: 1px solid var(--line);
+    }
+
+    .brand-name {
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: -.04em;
+      color: #0f5132;
+    }
+
+    .badge {
+      padding: 6px 11px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      background: white;
+    }
+
+    .badge.green {
+      color: #166534;
+      border-color: #86efac;
+      background: #dcfce7;
+    }
+
+    .docs-shell {
+      display: grid;
+      grid-template-columns: 320px minmax(0, 1fr);
+      gap: 24px;
+      padding: 24px;
+    }
+
+    .docs-sidebar {
+      position: sticky;
+      top: 96px;
+      height: calc(100vh - 120px);
+      padding: 16px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      animation: slideIn .35s ease;
+    }
+
+    .search-box {
+      height: 48px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 13px;
+      border-radius: 14px;
+      background: white;
+      border: 1px solid var(--line);
+      margin-bottom: 14px;
+    }
+
+    .search-box input {
+      flex: 1;
+      min-width: 0;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .filter-title {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin: 16px 0 8px;
+    }
+
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--muted);
+      padding: 7px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 800;
+      transition: .2s ease;
+    }
+
+    .chip:hover {
+      transform: translateY(-1px);
+      border-color: #86efac;
+    }
+
+    .chip.active {
+      color: #064e3b;
+      background: #dcfce7;
+      border-color: #86efac;
+    }
+
+    .sidebar-content {
+      height: calc(100% - 188px);
+      overflow-y: auto;
+      margin-top: 14px;
+      padding-right: 4px;
+    }
+
+    .sidebar-project-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: #059669;
+      padding: 11px 4px;
+      font-size: 13px;
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      cursor: pointer;
+    }
+
+    .sidebar-project-title span:last-child {
+      color: #94a3b8;
+      font-size: 12px;
+    }
+
+    .sidebar-group {
+      border-bottom: 1px solid #edf4ef;
+      padding-bottom: 8px;
+      margin-bottom: 8px;
+    }
+
+    .sidebar-endpoints {
+      display: grid;
+      gap: 6px;
+      padding-bottom: 8px;
+    }
+
+    .sidebar-endpoints.collapsed {
+      display: none;
+    }
+
+    .sidebar-item {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 54px minmax(0, 1fr);
+      align-items: center;
+      gap: 8px;
+      border: 0;
+      padding: 8px 10px;
+      border-radius: 10px;
+      color: var(--text);
+      cursor: pointer;
+      background: transparent;
+      text-align: left;
+      transition: .16s ease;
+    }
+
+    .sidebar-item:hover {
+      background: #f1f8f4;
+      transform: translateX(3px);
+    }
+
+    .method {
+      min-width: 50px;
+      padding: 5px 7px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .get { background: #dbeafe; color: #1d4ed8; }
+    .post { background: #dcfce7; color: #166534; }
+    .put { background: #ffedd5; color: #c2410c; }
+    .delete { background: #fee2e2; color: #b91c1c; }
+    .patch { background: #ede9fe; color: #6d28d9; }
+
+    .sidebar-path {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      font-size: 13px;
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .hero-card {
+      padding: 30px;
+      border-radius: 22px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+      animation: fadeIn .35s ease;
+    }
+
+    .hero-top {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .hero-logo {
+      width: 64px;
+      height: 64px;
+      object-fit: cover;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+    }
+
+    .hero-card h1 {
+      margin: 0;
+      font-size: 46px;
+      font-weight: 900;
+      letter-spacing: -.06em;
+      color: #1f2937;
+    }
+
+    .hero-card p {
+      max-width: 760px;
+      color: var(--muted);
+      line-height: 1.7;
+      margin: 18px 0 0;
+    }
+
+    .hero-badges {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .hero-badges span {
+      padding: 8px 13px;
+      border-radius: 999px;
+      background: white;
+      border: 1px solid var(--line);
+      color: #047857;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .swagger-ui {
+      background: transparent !important;
+      color: var(--text);
+      font-family: inherit !important;
+    }
+
+    .swagger-ui .topbar,
+    .swagger-ui .information-container {
+      display: none !important;
+    }
+
+    .swagger-ui .wrapper {
+      max-width: none !important;
+      padding: 0 !important;
+    }
+
+    .swagger-ui .scheme-container {
+      background: var(--panel) !important;
+      border: 1px solid var(--line) !important;
+      border-radius: 18px !important;
+      box-shadow: var(--shadow) !important;
+      padding: 16px !important;
+      margin: 0 0 20px !important;
+    }
+
+    .swagger-ui .opblock-tag-section {
+      background: var(--panel) !important;
+      border: 1px solid var(--line) !important;
+      border-radius: 22px !important;
+      padding: 18px !important;
+      margin-bottom: 20px !important;
+      box-shadow: var(--shadow) !important;
+      animation: fadeIn .3s ease;
+    }
+
+    .swagger-ui .opblock-tag {
+      color: #1f2937 !important;
+      border-bottom: 1px solid var(--line) !important;
+      padding: 0 0 14px !important;
+      margin: 0 !important;
+      font-size: 24px !important;
+      font-weight: 900 !important;
+    }
+
+    .swagger-ui .opblock {
+      overflow: hidden;
+      border-radius: 16px !important;
+      margin: 10px 0 !important;
+      background: white !important;
+      border: 1px solid #e5efe8 !important;
+      box-shadow: 0 4px 14px rgba(15,23,42,.03) !important;
+      transition: transform .22s ease, box-shadow .22s ease;
+    }
+
+    .swagger-ui .opblock:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(15,23,42,.06) !important;
+    }
+
+    .swagger-ui .opblock:focus,
+    .swagger-ui .opblock *:focus,
+    .swagger-ui .opblock-summary:focus {
+      outline: none !important;
+      box-shadow: none !important;
+    }
+
+    .swagger-ui .opblock.opblock-get { border-left: 4px solid var(--blue) !important; }
+    .swagger-ui .opblock.opblock-post { border-left: 4px solid var(--primary) !important; }
+    .swagger-ui .opblock.opblock-put { border-left: 4px solid var(--orange) !important; }
+    .swagger-ui .opblock.opblock-delete { border-left: 4px solid var(--red) !important; }
+    .swagger-ui .opblock.opblock-patch { border-left: 4px solid var(--purple) !important; }
+
+    .swagger-ui .opblock-summary {
+      min-height: 58px;
+      padding: 0 14px !important;
+      outline: none !important;
+      border: 0 !important;
+    }
+
+    .swagger-ui .opblock-summary-path {
+      color: #111827 !important;
+      font-weight: 800 !important;
+      font-size: 15px !important;
+    }
+
+    .swagger-ui .opblock-summary-description {
+      color: var(--muted) !important;
+    }
+
+    .swagger-ui .opblock-summary-method {
+      min-width: 78px !important;
+      border-radius: 9px !important;
+      font-size: 12px !important;
+      font-weight: 900 !important;
+      color: white !important;
+    }
+
+    .swagger-ui .opblock-body {
+      background: var(--panel-3) !important;
+      border-top: 1px solid var(--line);
+    }
+
+    .swagger-ui .opblock-section-header {
+      background: #f1f7f3 !important;
+      border-bottom: 1px solid var(--line) !important;
+      box-shadow: none !important;
+    }
+
+    .swagger-ui .opblock-section-header h4,
+    .swagger-ui .opblock-title,
+    .swagger-ui .responses-inner h4,
+    .swagger-ui .responses-inner h5,
+    .swagger-ui .parameter__name,
+    .swagger-ui .parameter__type,
+    .swagger-ui .response-col_status,
+    .swagger-ui .response-col_description,
+    .swagger-ui table,
+    .swagger-ui .model,
+    .swagger-ui .markdown p,
+    .swagger-ui .tab li,
+    .swagger-ui label {
+      color: var(--text) !important;
+    }
+
+    .swagger-ui input,
+    .swagger-ui textarea,
+    .swagger-ui select {
+      background: white !important;
+      color: #111827 !important;
+      border: 1px solid var(--line) !important;
+      border-radius: 10px !important;
+    }
+
+    .swagger-ui .btn {
+      border-radius: 10px !important;
+      font-weight: 800 !important;
+    }
+
+    .swagger-ui .btn.authorize {
+      background: #dcfce7 !important;
+      border: 1px solid #86efac !important;
+      color: #166534 !important;
+    }
+
+    .swagger-ui .btn.execute {
+      background: var(--primary) !important;
+      border: 0 !important;
+      color: white !important;
+    }
+
+    .swagger-ui section.models {
+      background: var(--panel) !important;
+      border: 1px solid var(--line) !important;
+      border-radius: 20px !important;
+      box-shadow: var(--shadow) !important;
+    }
+
+    .hidden-by-filter {
+      display: none !important;
+    }
+
+    ::-webkit-scrollbar {
+      width: 9px;
+      height: 9px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(16,185,129,.24);
+      border-radius: 999px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-12px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @media (max-width: 1100px) {
+      .docs-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .docs-sidebar {
+        position: relative;
+        top: auto;
+        height: auto;
+      }
+
+      .sidebar-content {
+        height: auto;
+        max-height: 420px;
+      }
+
+      .hero-card h1 {
+        font-size: 36px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="docs-header">
+    <div class="brand">
+      <img class="brand-logo" src="https://res.cloudinary.com/dinvm5h7g/image/upload/v1776836282/logo/ChatGPT_Image_Apr_22_2026_12_37_40_PM_melvlj.png" alt="BusGo Logo" />
+      <div class="brand-name">BusGo API</div>
+      <span class="badge">v1.0.0</span>
+      <span class="badge green">OAS 3.0</span>
+    </div>
+  </header>
+
+  <main class="docs-shell">
+    <aside class="docs-sidebar">
+      <div class="search-box">
+        <span>⌕</span>
+        <input id="endpointSearch" type="text" placeholder="Search endpoints..." />
+      </div>
+
+      <div class="filter-title">Tags</div>
+      <div id="tagFilters" class="filter-row"></div>
+
+      <div class="filter-title">Methods</div>
+      <div id="methodFilters" class="filter-row"></div>
+
+      <div class="filter-title">Project modules</div>
+      <div id="sidebarContent" class="sidebar-content"></div>
+    </aside>
+
+    <section>
+      <section class="hero-card">
+        <div class="hero-top">
+          <img class="hero-logo" src="https://res.cloudinary.com/dinvm5h7g/image/upload/v1776836282/logo/ChatGPT_Image_Apr_22_2026_12_37_40_PM_melvlj.png" alt="BusGo Logo" />
+          <h1>BusGo API</h1>
+        </div>
+
+        <p>
+          Modern API documentation for the BusGo backend service.
+          Browse project modules by tag, method, or keyword.
+        </p>
+
+        <div class="hero-badges">
+          <span>Fastify</span>
+          <span>OpenAPI 3.0</span>
+          <span>JWT Auth</span>
+          <span>Production Docs</span>
+        </div>
+      </section>
+
+      <div id="swagger-ui"></div>
+    </section>
+  </main>
+
+  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+
+  <script>
+    const API_SERVER = 'https://my-server.serveminecraft.net'
+    const OPENAPI_URL = `${API_SERVER}/swagger/json`
+
+    const state = {
+      tag: 'all',
+      method: 'all',
+      search: '',
+      endpoints: [],
+      collapsedTags: new Set(),
+    }
+
+    const methodClass = method => {
+      const value = method.toLowerCase()
+      return ['get', 'post', 'put', 'delete', 'patch'].includes(value) ? value : 'get'
+    }
+
+    const normalize = value => String(value || '').toLowerCase()
+
+    const endpointMatches = item => {
+      const q = normalize(state.search)
+      const byTag = state.tag === 'all' || item.tag === state.tag
+      const byMethod = state.method === 'all' || item.method === state.method
+      const bySearch =
+        !q ||
+        normalize(`${item.method} ${item.path} ${item.summary} ${item.tag}`).includes(q)
+
+      return byTag && byMethod && bySearch
+    }
+
+    const renderChips = () => {
+      const tags = ['all', ...new Set(state.endpoints.map(item => item.tag))]
+      const methods = ['all', ...new Set(state.endpoints.map(item => item.method))]
+
+      document.getElementById('tagFilters').innerHTML = tags
+        .map(tag => `
+          <button type="button" class="chip ${state.tag === tag ? 'active' : ''}" data-tag="${tag}">
+            ${tag}
+          </button>
+        `)
+        .join('')
+
+      document.getElementById('methodFilters').innerHTML = methods
+        .map(method => `
+          <button type="button" class="chip ${state.method === method ? 'active' : ''}" data-method="${method}">
+            ${method}
+          </button>
+        `)
+        .join('')
+
+      document.querySelectorAll('[data-tag]').forEach(button => {
+        button.onclick = event => {
+          event.preventDefault()
+          state.tag = button.dataset.tag
+          renderAll()
+          applySwaggerFilter()
+        }
+      })
+
+      document.querySelectorAll('[data-method]').forEach(button => {
+        button.onclick = event => {
+          event.preventDefault()
+          state.method = button.dataset.method
+          renderAll()
+          applySwaggerFilter()
+        }
+      })
+    }
+
+    const renderSidebar = () => {
+      const sidebar = document.getElementById('sidebarContent')
+      const grouped = {}
+
+      state.endpoints
+        .filter(endpointMatches)
+        .forEach(item => {
+          if (!grouped[item.tag]) grouped[item.tag] = []
+          grouped[item.tag].push(item)
+        })
+
+      sidebar.innerHTML = Object.entries(grouped)
+        .map(([tag, endpoints]) => {
+          const collapsed = state.collapsedTags.has(tag)
+
+          return `
+            <div class="sidebar-group">
+              <button type="button" class="sidebar-project-title" data-collapse-tag="${tag}">
+                <span>${tag}</span>
+                <span>${collapsed ? '+' : '−'} ${endpoints.length}</span>
+              </button>
+
+              <div class="sidebar-endpoints ${collapsed ? 'collapsed' : ''}">
+                ${endpoints.map(item => `
+                  <button type="button" class="sidebar-item" data-path="${item.path}">
+                    <span class="method ${methodClass(item.method)}">${item.method}</span>
+                    <span class="sidebar-path">${item.path}</span>
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+          `
+        })
+        .join('') || `<p style="color:#64748b;font-size:14px;">No endpoints found.</p>`
+
+      document.querySelectorAll('[data-collapse-tag]').forEach(button => {
+        button.onclick = () => {
+          const tag = button.dataset.collapseTag
+
+          if (state.collapsedTags.has(tag)) {
+            state.collapsedTags.delete(tag)
+          } else {
+            state.collapsedTags.add(tag)
+          }
+
+          renderSidebar()
+        }
+      })
+
+      document.querySelectorAll('.sidebar-item').forEach(button => {
+        button.onclick = event => {
+          event.preventDefault()
+
+          const path = button.dataset.path
+
+          const target = [...document.querySelectorAll('.opblock-summary-path')]
+            .find(el => el.textContent.trim() === path)
+
+          if (!target) return
+
+          target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+          })
+
+          const block = target.closest('.opblock')
+
+          if (block) {
+            block.animate(
+              [
+                { transform: 'scale(1)' },
+                { transform: 'scale(1.01)' },
+                { transform: 'scale(1)' },
+              ],
+              {
+                duration: 420,
+                easing: 'ease-out',
+              }
+            )
+          }
+        }
+      })
+    }
+
+    const renderAll = () => {
+      renderChips()
+      renderSidebar()
+    }
+
+    const applySwaggerFilter = () => {
+      const visiblePaths = new Set(
+        state.endpoints
+          .filter(endpointMatches)
+          .map(item => `${item.method}:${item.path}`)
+      )
+
+      document.querySelectorAll('.opblock').forEach(block => {
+        const method = block.className
+          .match(/opblock-(get|post|put|delete|patch)/)?.[1]
+          ?.toUpperCase()
+
+        const path = block.querySelector('.opblock-summary-path')?.textContent?.trim()
+        const key = `${method}:${path}`
+        const visible = visiblePaths.has(key)
+
+        block.style.display = visible ? 'block' : 'none'
+
+        if (visible) {
+          block.style.animation = 'fadeIn .25s ease'
+        }
+      })
+
+      document.querySelectorAll('.opblock-tag-section').forEach(section => {
+        const visible = [...section.querySelectorAll('.opblock')]
+          .some(block => block.style.display !== 'none')
+
+        section.style.display = visible ? 'block' : 'none'
+      })
+    }
+
+    const patchOpenApiSpec = spec => {
+      return {
+        ...spec,
+        servers: [
+          {
+            url: API_SERVER,
+            description: 'BusGo Production API',
+          },
+        ],
+      }
+    }
+
+    const init = async () => {
+      const response = await fetch(OPENAPI_URL)
+
+      if (!response.ok) {
+        throw new Error(`Cannot load OpenAPI JSON: ${response.status}`)
+      }
+
+      const rawSpec = await response.json()
+      const spec = patchOpenApiSpec(rawSpec)
+
+      Object.entries(spec.paths || {}).forEach(([path, methods]) => {
+        Object.entries(methods).forEach(([method, operation]) => {
+          const methodUpper = method.toUpperCase()
+
+          if (!['GET', 'POST', 'PUT', 'DELETE', 'PATCH'].includes(methodUpper)) {
+            return
+          }
+
+          state.endpoints.push({
+            method: methodUpper,
+            path,
+            tag: operation.tags?.[0] || 'default',
+            summary: operation.summary || operation.description || '',
+          })
+        })
+      })
+
+      renderAll()
+
+      SwaggerUIBundle({
+        spec,
+        dom_id: '#swagger-ui',
+        deepLinking: false,
+        docExpansion: 'list',
+        defaultModelsExpandDepth: 1,
+        displayRequestDuration: true,
+        persistAuthorization: true,
+        tryItOutEnabled: true,
+      })
+
+      document.getElementById('endpointSearch').addEventListener('input', event => {
+        state.search = event.target.value
+        renderSidebar()
+        applySwaggerFilter()
+      })
+
+      setTimeout(applySwaggerFilter, 800)
+    }
+
+    init().catch(error => {
+      document.getElementById('swagger-ui').innerHTML = `
+        <div style="background:#fff;border:1px solid #fecaca;border-radius:16px;padding:24px;color:#b91c1c;font-weight:700;">
+          Failed to load API docs
+          <div style="margin-top:10px;">${error.message}</div>
+        </div>
+      `
+    })
+  </script>
+</body>
+</html>
