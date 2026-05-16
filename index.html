@@ -531,9 +531,6 @@
 
       <div class="filter-title">Methods</div>
       <div id="methodFilters" class="filter-row"></div>
-
-      <div class="filter-title">Project modules</div>
-      <div id="sidebarContent" class="sidebar-content"></div>
     </aside>
 
     <section>
@@ -545,7 +542,7 @@
 
         <p>
           Modern API documentation for the BusGo backend service.
-          Browse project modules by tag, method, or keyword.
+          Browse endpoints by tag, method, or keyword.
         </p>
 
         <div class="hero-badges">
@@ -678,6 +675,8 @@
 
     const renderSidebar = () => {
       const sidebar = document.getElementById('sidebarContent')
+      if (!sidebar) return
+
       const grouped = {}
 
       state.endpoints
